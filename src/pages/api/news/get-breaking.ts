@@ -14,7 +14,8 @@ const getBreaking = async( req: NextApiRequest, res: NextApiResponse) => {
     // changed implementation to axios.get instead of fetch
     // const newsReq = new Request(url);
     await axios.get(url).then((response) => {
-        res.send(response.data)})
+      res.send(response.data);
+    });
     
     // changed implementation to axios.get instead of fetch
     // }).then((data) => {
