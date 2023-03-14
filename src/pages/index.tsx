@@ -1,49 +1,67 @@
-import type {NextPage} from "next";
-import {useState, useEffect} from "react";
+import type { NextPage } from "next";
+import { useState, useEffect } from "react";
 import { Fragment } from "react";
-import {Disclosure, Menu, Transition} from "@headlessui/react";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import {ChevronDownIcon} from "@heroicons/react/20/solid";
+import {
+  ArchiveBoxIcon,
+  ArrowRightCircleIcon,
+  ChevronDownIcon,
+  DocumentDuplicateIcon,
+  HeartIcon,
+  PencilSquareIcon,
+  TrashIcon,
+  UserPlusIcon,
+} from "@heroicons/react/20/solid";
 import moment from "moment";
 import SignUpModal from "../components/SignUpModal";
-import {signIn, useSession} from "next-auth/react";
-import {NewsArticle, NewsSource} from "../types/news-api";
+import Head from "next/head";
+import { signIn, useSession } from "next-auth/react";
+import { NewsArticle, NewsSource } from "../types/news-api";
 import axios from "axios";
+import { isNull } from "util";
 
 let user = {
   name: "Pochi Chao",
   email: "19pochi94@gmail.com",
-  imageUrl: "/images/profilePic.jpeg"
-}
+  imageUrl: "/images/profilePic.jpeg",
+};
 
 const navigation = [
   { name: "Homepage", href: "#", current: true },
   { name: "Sources", href: "#", current: false },
   { name: "Preferences", href: "#", current: false },
-]
+];
 
 let userNavigation = [
   { name: "Your Profile", href: "#" },
   { name: "Settings", href: "#" },
   { name: "Sign Out", href: "#" },
-]
+];
+
+let filterBy = ["Source", "Author", "Date", "Category"];
 
 function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join("")
+  return classes.filter(Boolean).join("");
 }
 
 const Home: NextPage = () => {
+  const [selected, setSelected] = useState("");
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [open, setOpen] = useState(true);
-  const {data, status} = useSession();
+  const { data, status } = useSession();
 
   useEffect(() => {
-    axios.get("/api/news/get-breaking")
-    .then((res) => setArticles(res.data.articles))
-  }, [])
+    axios
+      .get("/api/news/get-breaking")
+      .then((res) => setArticles(res.data.articles));
+  }, []);
   return (
     <>
-      <SignUpModal open={open} setOpen={setOpen} /> 
+      <Head>
+        <title>Damocles</title>
+      </Head>
+      <SignUpModal open={open} setOpen={setOpen} />
       <div className="min-h-full">
         <Disclosure as="nav" className="bg-gray-800">
           {({ open }) => (
@@ -53,10 +71,10 @@ const Home: NextPage = () => {
                   <div className="flex items-center">
                     <img
                       className="h-8 w-8"
-                      src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                      alt="NewsStream"
+                      src="/images/logo.jpeg"
+                      alt="BreakingOracle"
                     />
-                    <p className="text-purple-400 pl-2 text-lg">NewsStream</p>
+                    <p className="text-purple-400 pl-2 text-lg">Damocles</p>
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">
                         {navigation.map((item) => (
@@ -66,7 +84,7 @@ const Home: NextPage = () => {
                             className={classNames(
                               item.current
                                 ? "outline outline-yellow-400 outline-offset-1 text-gray-300 hover:bg-gray-700 hover:text-white"
-                                : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                                : "text-gray-300 hover:bg-gray-700 hover:text-white hover:rounded-lg",
                               "px-3 py-2 rounded-md text-sm font-medium"
                             )}
                             aria-current={item.current ? "page" : undefined}
@@ -88,7 +106,9 @@ const Home: NextPage = () => {
                     </button>
                     <button
                       type="button"
-                      className={`p-1 text-gray-400 hover:text-white ${status==="authenticated" ? "hidden" : ""}`}
+                      className={`p-1 text-gray-400 hover:text-white hover:rounded-lg ${
+                        status === "authenticated" ? "hidden" : ""
+                      }`}
                       onClick={(e) => {
                         e.preventDefault();
                         setOpen(true);
@@ -98,7 +118,10 @@ const Home: NextPage = () => {
                     </button>
                     <Menu as="div" className="relative ml-3">
                       <div>
-                        <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm mr-3">
+                        <Menu.Button
+                          className="flex max-w-xs items-center rounded-full bg-gray-800 
+                        text-sm mr-3"
+                        >
                           <span className="sr-only">Open user menu</span>
                           <img
                             className="h-8 w-8 rounded-full"
@@ -107,7 +130,10 @@ const Home: NextPage = () => {
                           />
                         </Menu.Button>
                       </div>
-                      <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 ">
+                      <Menu.Items
+                        className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md
+                       bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 "
+                      >
                         {userNavigation.map((item) => (
                           <Menu.Item key={item.name}>
                             {({ active }) => (
@@ -126,7 +152,7 @@ const Home: NextPage = () => {
                       </Menu.Items>
                     </Menu>
                     <button
-                      className="text-gray-300 hover:bg-gray-700 hover:text-white"
+                      className="text-gray-300 hover:bg-gray-700 hover:text-white hover:rounded-lg"
                       onClick={(event) => {
                         event.preventDefault();
                         signIn("google");
@@ -137,7 +163,10 @@ const Home: NextPage = () => {
                   </div>
                   <div className="-mr-2 flex md:hidden">
                     {/* Mobile menu button */}
-                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white ">
+                    <Disclosure.Button
+                      className="inline-flex items-center justify-center rounded-md
+                     bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white "
+                    >
                       <span className="sr-only">Open main menu</span>
                       {open ? (
                         <XMarkIcon
@@ -194,7 +223,8 @@ const Home: NextPage = () => {
                     </div>
                     <button
                       type="button"
-                      className="ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white"
+                      className="ml-auto flex-shrink-0 rounded-full bg-gray-800 p-1 text-gray-400
+                       hover:text-white"
                     >
                       <span className="sr-only">View notifications</span>
                       <BellIcon className="h-6 w-6" aria-hidden="true" />
@@ -206,7 +236,8 @@ const Home: NextPage = () => {
                         key={item.name}
                         as="a"
                         href={item.href}
-                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
+                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-400
+                         hover:bg-gray-700 hover:text-white"
                       >
                         {item.name}
                       </Disclosure.Button>
@@ -217,142 +248,122 @@ const Home: NextPage = () => {
             </>
           )}
         </Disclosure>
-        <Menu as="div" className="text-left mx-auto max-w-7xl sm:px-3 lg:px-3 justify-between">
-          <div className="py-1">
-            <Menu.Button className="ml-80 inline-flex w-40 justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
-              Filter By
-              <ChevronDownIcon
-                className="-mr-1 ml-2 h-5 w-5"
-                aria-hidden="true"
-              />
-            </Menu.Button>
-          </div>
-          <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-            <div className="py-1">
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
-                    )}
-                  >
-                    Source
-                  </a>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
-                    )}
-                  >
-                    Author
-                  </a>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
-                    )}
-                  >
-                    Date
-                  </a>
-                )}
-              </Menu.Item>
-              <form method="POST" action="#">
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      type="submit"
-                      className={classNames(
-                        active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                        "block w-full px-4 py-2 text-left text-sm"
-                      )}
-                    >
-                      Category
-                    </button>
-                  )}
-                </Menu.Item>
-              </form>
+        <div className="mx-auto max-w-7xl pt-2 sm:px-6 lg:px-8">
+          <Menu as="div" className="relative inline-block text-left">
+            <div>
+              <Menu.Button
+                className="inline-flex w-full justify-center rounded-md border border-gray-300
+             bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 "
+              >
+                Filter By
+                <ChevronDownIcon
+                  className="-mr-1 ml-2 h-5 w-5"
+                  aria-hidden="true"
+                />
+              </Menu.Button>
             </div>
-          </Menu.Items>
-          <div className="py-1">
-            <Menu.Button className="ml-80 inline-flex w-40 justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
-              Sort By
-              <ChevronDownIcon
-                className="-mr-1 ml-2 h-5 w-5"
-                aria-hidden="true"
-              />
-            </Menu.Button>
-          </div>
-          <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-            <div className="py-1">
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items
+                className="absolute left-0 z-10 mt-2 w-56 origin-top-right divide-y
+             divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+              >
+                <div className="py-1">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <a
+                        href="#"
+                        className={classNames(
+                          active
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-700",
+                          "group flex items-center px-4 py-2 text-sm"
+                        )}
+                      >
+                        <PencilSquareIcon
+                          className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                          aria-hidden="true"
+                        />
+                        Source
+                      </a>
                     )}
-                  >
-                    Source
-                  </a>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
+                  </Menu.Item>
+                </div>
+                <div className="py-1">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <a
+                        href="#"
+                        className={classNames(
+                          active
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-700",
+                          "group flex items-center px-4 py-2 text-sm"
+                        )}
+                      >
+                        <DocumentDuplicateIcon
+                          className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                          aria-hidden="true"
+                        />
+                        Author
+                      </a>
                     )}
-                  >
-                    Author
-                  </a>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <a
-                    href="#"
-                    className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
+                  </Menu.Item>
+                </div>
+                <div className="py-1">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <a
+                        href="#"
+                        className={classNames(
+                          active
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-700",
+                          "group flex items-center px-4 py-2 text-sm"
+                        )}
+                      >
+                        <ArchiveBoxIcon
+                          className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                          aria-hidden="true"
+                        />
+                        Date
+                      </a>
                     )}
-                  >
-                    Date
-                  </a>
-                )}
-              </Menu.Item>
-              <form method="POST" action="#">
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      type="submit"
-                      className={classNames(
-                        active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                        "block w-full px-4 py-2 text-left text-sm"
-                      )}
-                    >
-                      Category
-                    </button>
-                  )}
-                </Menu.Item>
-              </form>
-            </div>
-          </Menu.Items>
-        </Menu>
+                  </Menu.Item>
+                </div>
+                <div className="py-1">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <a
+                        href="#"
+                        className={classNames(
+                          active
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-700",
+                          "group flex items-center px-4 py-2 text-sm"
+                        )}
+                      >
+                        <ArrowRightCircleIcon
+                          className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
+                          aria-hidden="true"
+                        />
+                        Category
+                      </a>
+                    )}
+                  </Menu.Item>
+                </div>
+              </Menu.Items>
+            </Transition>
+          </Menu>
+        </div>
+
         {articles.map((article, count) => {
           article["key"] = count;
           count++;
@@ -388,6 +399,6 @@ const Home: NextPage = () => {
       </div>
     </>
   );
-}
+};
 
 export default Home;
